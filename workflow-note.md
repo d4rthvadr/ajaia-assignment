@@ -93,3 +93,30 @@ it early means the editor choice stays load-bearing for the rest of the
 build instead of a risk to unwind later.
 
 ###
+
+### Decision: Allowing subagents on independent tasks via git worktrees
+
+**Prompt:** "lets include the option to use sub-agents where necessary
+as long as its an independent work with clear boundaries using
+worktrees. Update AGENTS.md as well" — after the progress tracker was
+drafted as a strictly linear task list.
+
+**What I got:** A progress tracker with phases and per-task blocking
+edges, but no guidance on when work could be parallelized rather than
+done one task at a time.
+
+**What I changed:** Added a "Parallelizable" tag to specific sibling
+tasks whose blockers are already satisfied and that don't touch the
+same files (e.g. sharing routes vs. attachment routes, both gated only
+on the document routes existing), with an explicit rule: a subagent
+may only take a tagged task in its own `git worktree`, merged back
+sequentially. Mirrored the same rule into AGENTS.md so it's enforced
+for any agent, not just documented in one file.
+
+**Why this matters:** Blanket parallelism risks two agents editing
+overlapping files or racing ahead of unmet dependencies; blanket
+serialism wastes time on genuinely independent work. Tagging only the
+tasks that are provably independent (by blockers + file boundaries)
+keeps the speed-up safe rather than assumed.
+
+###
