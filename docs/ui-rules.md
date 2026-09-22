@@ -5,18 +5,19 @@ new product pattern actually appears.
 
 ## Core rule
 
-Use a shadcn/ui primitive if one exists for the job. Keep the visual language close to a familiar
-document editor: compact controls, clear labels, white surfaces, and content-first spacing.
+Use the copied shadcn-style primitives in `frontend/src/components/ui/button.tsx` for buttons,
+inputs, labels, and badges. Keep the visual language close to a familiar document editor:
+compact controls, clear labels, white surfaces, and content-first spacing.
 
 ## Component mapping (add rows here as new UI needs arise)
 
 | Need                                                 | Component                                                                                                         |
 | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Buttons (New document, Save, Share, Import)          | `Button`                                                                                                          |
-| Text inputs (email, password, title, share-by-email) | `Input` + `Label`                                                                                                 |
+| Text inputs (email, password, title, share-by-email) | `TextInput` + `FieldLabel`                                                                                        |
 | Sign up / log in forms                               | `Form` (react-hook-form + zod, shadcn pattern)                                                                    |
 | "My documents" / "Shared with me" lists              | `Card` per document row, or `Table` if the list grows                                                             |
-| Owned vs. shared distinction                         | `Badge` (see [ui-tokens.md](ui-tokens.md))                                                                        |
+| Owned vs. shared distinction                         | `StatusBadge` (see [ui-tokens.md](ui-tokens.md))                                                                  |
 | Grant-access dialog                                  | `Dialog`                                                                                                          |
 | Attachment list                                      | `Card` or plain list with `Button` (variant `ghost`) for download                                                 |
 | Errors (bad login, rejected file type, no such user) | `Alert` (inline) or `Sonner` (toast) — prefer inline `Alert` for form errors, toast for transient action feedback |
@@ -57,7 +58,7 @@ document editor: compact controls, clear labels, white surfaces, and content-fir
 
 ## Accessibility baseline
 
-- Every interactive control has a visible label (via shadcn `Label`, not placeholder-only).
+- Every interactive control has a visible label (via `FieldLabel`, not placeholder-only).
 - Rely on Radix's built-in focus management/ARIA (shadcn components inherit this) rather than
   adding custom handling.
 

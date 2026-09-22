@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, ApiError } from "../lib/api";
+import { Button, FieldLabel, TextInput } from "../components/ui/button";
 
 export function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -40,16 +41,16 @@ export function AuthPage() {
           A quiet place to write, shape, and share documents.
         </p>
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
+          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <TextInput
             id="email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <label htmlFor="password">Password</label>
-          <input
+          <FieldLabel htmlFor="password">Password</FieldLabel>
+          <TextInput
             id="password"
             type="password"
             required
@@ -62,15 +63,13 @@ export function AuthPage() {
               {error}
             </p>
           )}
-          <button
-            className="button button-primary button-wide"
-            type="submit"
-            disabled={busy}
-          >
+          <Button className="button-wide" type="submit" disabled={busy}>
             {mode === "login" ? "Log in" : "Sign up"}
-          </button>
+          </Button>
         </form>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           className="text-button"
           type="button"
           onClick={() => setMode(mode === "login" ? "signup" : "login")}
@@ -78,7 +77,7 @@ export function AuthPage() {
           {mode === "login"
             ? "Need an account? Sign up"
             : "Have an account? Log in"}
-        </button>
+        </Button>
       </section>
     </main>
   );

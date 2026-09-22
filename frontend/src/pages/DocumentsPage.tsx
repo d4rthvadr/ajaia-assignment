@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FilePlus2, LogOut, Plus, Users } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, ApiError, type DocumentSummary } from "../lib/api";
+import { Button, StatusBadge, TextInput } from "../components/ui/button";
 
 function DocumentRow({ document }: { document: DocumentSummary }) {
   return (
@@ -16,7 +17,7 @@ function DocumentRow({ document }: { document: DocumentSummary }) {
         </small>
       </span>
       {document.access === "shared" && (
-        <span className="badge badge-outline">Shared</span>
+        <StatusBadge className="badge-outline">Shared</StatusBadge>
       )}
     </Link>
   );
@@ -76,15 +77,16 @@ export function DocumentsPage() {
         <Link className="brand" to="/documents">
           Draftroom
         </Link>
-        <button
-          className="button button-ghost"
+        <Button
+          variant="ghost"
+          size="sm"
           type="button"
           onClick={handleLogout}
           title="Log out"
         >
           <LogOut size={16} />
           Log out
-        </button>
+        </Button>
       </header>
 
       <section className="page-heading">
@@ -98,20 +100,16 @@ export function DocumentsPage() {
         <form className="create-form" onSubmit={handleCreate}>
           <label htmlFor="document-title">New document</label>
           <div className="input-row">
-            <input
+            <TextInput
               id="document-title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Untitled document"
             />
-            <button
-              className="button button-primary"
-              type="submit"
-              disabled={creating}
-            >
+            <Button type="submit" disabled={creating}>
               <Plus size={17} />
               {creating ? "Creating" : "Create"}
-            </button>
+            </Button>
           </div>
         </form>
       </section>
@@ -128,7 +126,9 @@ export function DocumentsPage() {
           <section className="document-section">
             <div className="section-heading">
               <h2>My documents</h2>
-              <span className="badge badge-secondary">{owned.length}</span>
+              <StatusBadge className="badge-secondary">
+                {owned.length}
+              </StatusBadge>
             </div>
             {owned.length > 0 ? (
               owned.map((document) => (
@@ -145,7 +145,9 @@ export function DocumentsPage() {
                 <Users size={17} />
                 <h2>Shared with me</h2>
               </div>
-              <span className="badge badge-outline">{shared.length}</span>
+              <StatusBadge className="badge-outline">
+                {shared.length}
+              </StatusBadge>
             </div>
             {shared.length > 0 ? (
               shared.map((document) => (

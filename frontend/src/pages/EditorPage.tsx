@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError, type Attachment, type ShareUser } from "../lib/api";
+import { Button, FieldLabel, TextInput } from "../components/ui/button";
 
 const SAVE_DEBOUNCE_MS = 1500;
 const POLL_INTERVAL_MS = 3000;
@@ -178,7 +179,9 @@ export function EditorPage() {
         </p>
         {canEdit && (
           <div className="editor-toolbar" aria-label="Formatting tools">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               className={
                 editor.isActive("bold") ? "tool-button active" : "tool-button"
               }
@@ -188,8 +191,10 @@ export function EditorPage() {
               aria-label="Bold"
             >
               <Bold size={17} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className={
                 editor.isActive("italic") ? "tool-button active" : "tool-button"
               }
@@ -199,8 +204,10 @@ export function EditorPage() {
               aria-label="Italic"
             >
               <Italic size={17} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className={
                 editor.isActive("heading", { level: 2 })
                   ? "tool-button active"
@@ -214,8 +221,10 @@ export function EditorPage() {
               aria-label="Heading"
             >
               <Heading2 size={17} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className={
                 editor.isActive("bulletList")
                   ? "tool-button active"
@@ -227,8 +236,10 @@ export function EditorPage() {
               aria-label="Bulleted list"
             >
               <List size={17} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className={
                 editor.isActive("orderedList")
                   ? "tool-button active"
@@ -240,7 +251,7 @@ export function EditorPage() {
               aria-label="Numbered list"
             >
               <ListOrdered size={17} />
-            </button>
+            </Button>
           </div>
         )}
         <EditorContent editor={editor} className="editor-content" />
@@ -262,9 +273,11 @@ export function EditorPage() {
                 </span>
               </div>
               <form className="share-form" onSubmit={handleShare}>
-                <label htmlFor="share-email">Existing user email</label>
+                <FieldLabel htmlFor="share-email">
+                  Existing user email
+                </FieldLabel>
                 <div className="input-row">
-                  <input
+                  <TextInput
                     id="share-email"
                     type="email"
                     value={shareEmail}
@@ -272,9 +285,7 @@ export function EditorPage() {
                     placeholder="reader@example.com"
                     required
                   />
-                  <button className="button button-primary" type="submit">
-                    Grant access
-                  </button>
+                  <Button type="submit">Grant access</Button>
                 </div>
               </form>
               {shares.length > 0 && (

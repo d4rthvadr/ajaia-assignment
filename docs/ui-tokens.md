@@ -57,3 +57,4 @@ quiet, and optimized for scanning documents.
 
 - Initial tokens defined alongside shadcn/ui adoption (2026-09-22). No customizations yet beyond
   shadcn defaults.
+- Docs-style brand tokens and shared primitive adoption recorded (2026-09-22).
