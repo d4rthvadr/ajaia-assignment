@@ -3,6 +3,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
+  ChevronDown,
   Download,
   FileUp,
   Heading2,
@@ -13,6 +14,8 @@ import {
   Share2,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import * as Dialog from "@radix-ui/react-dialog";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { api, ApiError, type Attachment, type ShareUser } from "../lib/api";
 import { Button, FieldLabel, TextInput } from "../components/ui/button";
 
@@ -30,6 +33,7 @@ export function EditorPage() {
   const [shareEmail, setShareEmail] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
   const lastKnownVersion = useRef(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -77,7 +81,7 @@ export function EditorPage() {
 
   async function handleShare(event: React.FormEvent) {
     event.preventDefault();
-    if (!id || !shareEmail.trim()) return;
+    if (!id || !shareEmail.trim()) return false;
     setActionError(null);
     setActionMessage(null);
     try {
@@ -86,10 +90,12 @@ export function EditorPage() {
       setShares(users);
       setShareEmail("");
       setActionMessage("Access granted.");
+      return true;
     } catch (error) {
       setActionError(
         error instanceof ApiError ? error.message : "Unable to grant access",
       );
+      return false;
     }
   }
 
@@ -165,9 +171,68 @@ export function EditorPage() {
         <Link className="brand" to="/documents">
           Draftroom
         </Link>
-        <span className="save-status">
-          {canEdit ? "Saved automatically" : "View only"}
-        </span>
+        <nav className="main-nav" aria-label="Main navigation">
+          <Link className="nav-link" to="/documents">
+            Documents
+          </Link>
+          {canEdit && (
+            <Dialog.Root open={shareOpen} onOpenChange={setShareOpen}>
+              <Dialog.Trigger asChild>
+                <Button variant="secondary" size="sm">
+                  <Share2 size={15} /> Share
+                </Button>
+              </Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Overlay className="dialog-overlay" />
+                <Dialog.Content className="dialog-content">
+                  <Dialog.Title className="dialog-title">
+                    Share this document
+                  </Dialog.Title>
+                  <Dialog.Description className="dialog-description">
+                    Give an existing user view-only access.
+                  </Dialog.Description>
+                  <form
+                    className="share-form"
+                    onSubmit={async (event) => {
+                      const shared = await handleShare(event);
+                      if (shared) setShareOpen(false);
+                    }}
+                  >
+                    <FieldLabel htmlFor="share-email-dialog">
+                      User email
+                    </FieldLabel>
+                    <div className="input-row">
+                      <TextInput
+                        id="share-email-dialog"
+                        type="email"
+                        value={shareEmail}
+                        onChange={(event) => setShareEmail(event.target.value)}
+                        placeholder="reader@example.com"
+                        required
+                      />
+                      <Button type="submit">Grant access</Button>
+                    </div>
+                  </form>
+                  {shares.length > 0 && (
+                    <ul className="share-list">
+                      {shares.map((share) => (
+                        <li key={share.id}>{share.email}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <Dialog.Close asChild>
+                    <Button variant="ghost" size="sm" className="dialog-close">
+                      Done
+                    </Button>
+                  </Dialog.Close>
+                </Dialog.Content>
+              </Dialog.Portal>
+            </Dialog.Root>
+          )}
+          <span className="save-status">
+            {canEdit ? "Saved automatically" : "View only"}
+          </span>
+        </nav>
       </header>
       <section className="editor-page">
         <p className="eyebrow">Working document</p>
@@ -261,42 +326,6 @@ export function EditorPage() {
           </p>
         )}
         <div className="editor-panels">
-          {canEdit && (
-            <section className="editor-panel">
-              <div className="panel-heading">
-                <div className="panel-title">
-                  <Share2 size={16} aria-hidden="true" />
-                  <h2>Share access</h2>
-                </div>
-                <span>
-                  {shares.length} viewer{shares.length === 1 ? "" : "s"}
-                </span>
-              </div>
-              <form className="share-form" onSubmit={handleShare}>
-                <FieldLabel htmlFor="share-email">
-                  Existing user email
-                </FieldLabel>
-                <div className="input-row">
-                  <TextInput
-                    id="share-email"
-                    type="email"
-                    value={shareEmail}
-                    onChange={(event) => setShareEmail(event.target.value)}
-                    placeholder="reader@example.com"
-                    required
-                  />
-                  <Button type="submit">Grant access</Button>
-                </div>
-              </form>
-              {shares.length > 0 && (
-                <ul className="share-list">
-                  {shares.map((share) => (
-                    <li key={share.id}>{share.email}</li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          )}
           <section className="editor-panel">
             <div className="panel-heading">
               <div className="panel-title">
@@ -309,26 +338,43 @@ export function EditorPage() {
             </div>
             {canEdit && (
               <div className="file-actions">
-                <label className="button button-secondary">
-                  <FileUp size={16} aria-hidden="true" />
-                  Upload file
-                  <input
-                    className="visually-hidden"
-                    type="file"
-                    accept=".txt,.md,text/plain,text/markdown"
-                    onChange={handleUpload}
-                  />
-                </label>
-                <label className="button button-ghost">
-                  <FileUp size={16} aria-hidden="true" />
-                  Import as content
-                  <input
-                    className="visually-hidden"
-                    type="file"
-                    accept=".txt,.md,text/plain,text/markdown"
-                    onChange={handleImport}
-                  />
-                </label>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger asChild>
+                    <Button variant="secondary" size="sm">
+                      <FileUp size={16} /> File actions{" "}
+                      <ChevronDown size={14} />
+                    </Button>
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Portal>
+                    <DropdownMenu.Content
+                      className="dropdown-content"
+                      align="start"
+                    >
+                      <DropdownMenu.Item className="dropdown-item" asChild>
+                        <label>
+                          Upload file
+                          <input
+                            className="visually-hidden"
+                            type="file"
+                            accept=".txt,.md,text/plain,text/markdown"
+                            onChange={handleUpload}
+                          />
+                        </label>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item className="dropdown-item" asChild>
+                        <label>
+                          Import as content
+                          <input
+                            className="visually-hidden"
+                            type="file"
+                            accept=".txt,.md,text/plain,text/markdown"
+                            onChange={handleImport}
+                          />
+                        </label>
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Portal>
+                </DropdownMenu.Root>
               </div>
             )}
             {attachments.length > 0 ? (

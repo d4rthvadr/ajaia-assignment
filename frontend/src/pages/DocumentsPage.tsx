@@ -77,16 +77,20 @@ export function DocumentsPage() {
         <Link className="brand" to="/documents">
           Draftroom
         </Link>
-        <Button
-          variant="ghost"
-          size="sm"
-          type="button"
-          onClick={handleLogout}
-          title="Log out"
-        >
-          <LogOut size={16} />
-          Log out
-        </Button>
+        <nav className="main-nav" aria-label="Main navigation">
+          <Link className="nav-link active" to="/documents">
+            Documents
+          </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={handleLogout}
+            title="Log out"
+          >
+            <LogOut size={16} /> Log out
+          </Button>
+        </nav>
       </header>
 
       <section className="page-heading">
