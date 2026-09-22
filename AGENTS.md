@@ -73,6 +73,9 @@ docs/      PRD, ADRs, specs
 - Follow [docs/ui-tokens.md](docs/ui-tokens.md) and [docs/ui-rules.md](docs/ui-rules.md) for UI
   component/token choices; these are living docs — extend them only when a new pattern is
   actually needed, not preemptively.
+- Validate backend request bodies with Zod schemas through the shared `validateBody` middleware;
+  do not add ad hoc `typeof req.body` checks in route handlers. Keep client-facing validation
+  messages generic and do not expose Zod issue details.
 - Keep comments to a single line stating what the code can't show on its own; do not add
   multi-paragraph doc comments or restate what the next line does.
 - Do not create additional markdown docs beyond what's under `docs/` unless asked.

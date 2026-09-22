@@ -19,6 +19,30 @@ value I added was recognizing the failure mode, not the code itself.
 
 ###
 
+### Decision: Use Multer for the initial file-upload path
+
+**Prompt:** With limited time for setting up real blob storage, choose a lean
+initial approach for handling `.txt` and `.md` uploads.
+
+**What I got:** A local file-storage requirement, but no deployment target or
+object-storage service configured for this pass. Adding blob-storage setup
+would introduce credentials, provisioning, and another integration boundary
+before the core upload and import flows were proven.
+
+**What I changed:** Chose Multer with in-memory multipart handling for the
+initial upload boundary. The backend validates both extension and MIME type,
+writes accepted attachment bytes to a project-relative `uploads/` directory
+under a server-generated filename, and stores only metadata in Postgres.
+Blob-storage integration is deferred as a future storage-adapter change.
+
+**Why this matters:** This keeps the first implementation small and testable
+within the timebox while preserving the security requirements around file
+types and path traversal. It also leaves the API and Prisma metadata model
+stable so moving the bytes to object storage later does not require changing
+the user-facing upload contract.
+
+###
+
 ### Decision: Collaboration & permission scope for a 2-hour build
 
 **Prompt:** Asked the assistant to grill the plan for a Google-Docs-inspired

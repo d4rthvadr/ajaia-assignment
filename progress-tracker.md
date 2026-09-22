@@ -29,8 +29,8 @@ starting the next dependent task.
 | -------------------------------------------- | ----------- | ---------------- |
 | 0. Project scaffolding                       | Done        | None             |
 | 1. Tracer bullet (thinnest full stack slice) | Done        | Phase 0          |
-| 2. Backend feature completion                | Not Started | Phase 1          |
-| 3. Frontend feature completion               | Not Started | Phase 1, Phase 2 |
+| 2. Backend feature completion                | Done        | Phase 1          |
+| 3. Frontend feature completion               | In Progress | Phase 1, Phase 2 |
 | 4. Verification                              | Not Started | Phase 2, Phase 3 |
 
 ---
@@ -89,15 +89,15 @@ sharing, attachments, multi-document lists, and full shadcn/ui styling on top of
 
 **Status:** Not Started · **Blocked by:** Phase 1 (Done)
 
-- [ ] 2.1 Extend document routes to full list/create: `GET /documents` (list owned), `POST
+- [x] 2.1 Extend document routes to full list/create: `GET /documents` (list owned), `POST
     /documents` (create, ADR-0005) — generalizing 1.3's single-document create into "My
       documents."
       **Blocked by:** 1.3.
-- [ ] 2.2 Sharing routes: `POST /documents/:id/share`, `GET /documents/:id/shares`,
+- [x] 2.2 Sharing routes: `POST /documents/:id/share`, `GET /documents/:id/shares`,
       `GET /documents/shared-with-me` (`DocumentAccess` grants, ADR-0002).
       **Blocked by:** 2.1. **Parallelizable** with 2.3 once 2.1 is `Done` — separate route
       modules, no shared files.
-- [ ] 2.3 Attachment routes: upload, list, download, import-as-content — `.txt`/`.md` only,
+- [x] 2.3 Attachment routes: upload, list, download, import-as-content — `.txt`/`.md` only,
       randomized stored filenames (ADR-0004).
       **Blocked by:** 2.1. **Parallelizable** with 2.2 once 2.1 is `Done`.
 

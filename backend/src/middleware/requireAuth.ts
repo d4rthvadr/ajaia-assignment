@@ -19,6 +19,10 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 
   try {
     const payload = verifySession(token);
+    if (typeof payload.userId !== "string" || !payload.userId) {
+      res.status(401).json({ error: "Invalid or expired session" });
+      return;
+    }
     req.userId = payload.userId;
     next();
   } catch {
