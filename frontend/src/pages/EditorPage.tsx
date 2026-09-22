@@ -36,6 +36,8 @@ export function EditorPage() {
   const [shareOpen, setShareOpen] = useState(false);
   const lastKnownVersion = useRef(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const uploadInput = useRef<HTMLInputElement>(null);
+  const importInput = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -76,7 +78,16 @@ export function EditorPage() {
         }
         setStatus("ready");
       })
-      .catch(() => setStatus("error"));
+      .catch((error) => {
+        setActionError(
+          error instanceof ApiError && error.status === 403
+            ? "You do not have access to this document. Open it from Shared with me while signed in as the recipient."
+            : error instanceof ApiError
+              ? error.message
+              : "Unable to load this document.",
+        );
+        setStatus("error");
+      });
   }, [editor, id]);
 
   async function handleShare(event: React.FormEvent) {
@@ -141,12 +152,16 @@ export function EditorPage() {
   useEffect(() => {
     if (!id || !editor) return;
     const interval = setInterval(async () => {
-      const { document } = await api.getDocument(id);
-      if (document.version > lastKnownVersion.current && !editor.isFocused) {
-        lastKnownVersion.current = document.version;
-        editor.commands.setContent(document.content || "", {
-          emitUpdate: false,
-        });
+      try {
+        const { document } = await api.getDocument(id);
+        if (document.version > lastKnownVersion.current && !editor.isFocused) {
+          lastKnownVersion.current = document.version;
+          editor.commands.setContent(document.content || "", {
+            emitUpdate: false,
+          });
+        }
+      } catch {
+        // Keep the current document visible if a background poll fails.
       }
     }, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
@@ -161,7 +176,12 @@ export function EditorPage() {
   if (status === "error" || !editor)
     return (
       <main className="page-shell">
-        <p className="alert">Unable to load this document.</p>
+        <p className="alert">
+          {actionError ?? "Unable to load this document."}
+        </p>
+        <Link className="button button-secondary" to="/documents">
+          Back to documents
+        </Link>
       </main>
     );
 
@@ -338,6 +358,20 @@ export function EditorPage() {
             </div>
             {canEdit && (
               <div className="file-actions">
+                <input
+                  ref={uploadInput}
+                  className="visually-hidden"
+                  type="file"
+                  accept=".txt,.md,text/plain,text/markdown"
+                  onChange={handleUpload}
+                />
+                <input
+                  ref={importInput}
+                  className="visually-hidden"
+                  type="file"
+                  accept=".txt,.md,text/plain,text/markdown"
+                  onChange={handleImport}
+                />
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <Button variant="secondary" size="sm">
@@ -350,27 +384,21 @@ export function EditorPage() {
                       className="dropdown-content"
                       align="start"
                     >
-                      <DropdownMenu.Item className="dropdown-item" asChild>
-                        <label>
-                          Upload file
-                          <input
-                            className="visually-hidden"
-                            type="file"
-                            accept=".txt,.md,text/plain,text/markdown"
-                            onChange={handleUpload}
-                          />
-                        </label>
+                      <DropdownMenu.Item
+                        className="dropdown-item"
+                        onSelect={() => {
+                          uploadInput.current?.click();
+                        }}
+                      >
+                        Upload file
                       </DropdownMenu.Item>
-                      <DropdownMenu.Item className="dropdown-item" asChild>
-                        <label>
-                          Import as content
-                          <input
-                            className="visually-hidden"
-                            type="file"
-                            accept=".txt,.md,text/plain,text/markdown"
-                            onChange={handleImport}
-                          />
-                        </label>
+                      <DropdownMenu.Item
+                        className="dropdown-item"
+                        onSelect={() => {
+                          importInput.current?.click();
+                        }}
+                      >
+                        Import as content
                       </DropdownMenu.Item>
                     </DropdownMenu.Content>
                   </DropdownMenu.Portal>
