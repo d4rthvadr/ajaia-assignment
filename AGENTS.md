@@ -13,6 +13,8 @@ touching cross-cutting concerns like auth, sync, or file handling.
 
 ## Stack
 
+- Runtime: Node.js 24 (see `.nvmrc`) — use this version everywhere: local dev, scripts, CI, any
+  container/base image.
 - Backend: Node.js + TypeScript + Express, Prisma ORM, Postgres.
 - Frontend: Vite + React + TypeScript, Tiptap for rich text editing, shadcn/ui + Tailwind CSS
   for UI components.

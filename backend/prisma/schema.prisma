@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String           @id @default(uuid())
+  email        String           @unique
+  passwordHash String
+  createdAt    DateTime         @default(now())
+  documents    Document[]
+  accessGrants DocumentAccess[]
+}
+
+model Document {
+  id          String           @id @default(uuid())
+  ownerId     String
+  owner       User             @relation(fields: [ownerId], references: [id])
+  title       String           @default("Untitled document")
+  content     String           @default("")
+  version     Int              @default(1)
+  updatedAt   DateTime         @updatedAt
+  attachments Attachment[]
+  sharedWith  DocumentAccess[]
+}
+
+model DocumentAccess {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([documentId, userId])
+}
+
+model Attachment {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  filename   String
+  storedPath String
+  mimeType   String
+  size       Int
+  createdAt  DateTime @default(now())
+}
