@@ -42,10 +42,16 @@ router.get("/shared-with-me", async (req, res) => {
     orderBy: { document: { updatedAt: "desc" } },
   });
   res.status(200).json({
-    documents: grants.map(({ document }) => ({
-      ...document,
-      access: "shared" as const,
-    })),
+    documents: grants.map(
+      ({
+        document,
+      }: {
+        document: { id: string; title: string | null; updatedAt: Date };
+      }) => ({
+        ...document,
+        access: "shared" as const,
+      }),
+    ),
   });
 });
 
@@ -121,7 +127,11 @@ router.get("/:id/shares", async (req, res) => {
     select: { user: { select: { id: true, email: true } } },
     orderBy: { createdAt: "asc" },
   });
-  res.status(200).json({ users: grants.map(({ user }) => user) });
+  res.status(200).json({
+    users: grants.map(
+      ({ user }: { user: { id: string; email: string } }) => user,
+    ),
+  });
 });
 
 router.get("/:id", async (req, res) => {

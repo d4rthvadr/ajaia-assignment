@@ -9,7 +9,15 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN ?? "http://localhost:5173",
+    origin: (origin, callback) => {
+      const configuredOrigin =
+        process.env.FRONTEND_ORIGIN ?? "http://localhost:5173";
+      const isLocalFrontend =
+        !origin ||
+        origin === configuredOrigin ||
+        /^http:\/\/localhost:\d+$/.test(origin);
+      callback(null, isLocalFrontend);
+    },
     credentials: true,
   }),
 );
