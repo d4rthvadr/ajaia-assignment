@@ -27,8 +27,8 @@ starting the next dependent task.
 
 | Phase                                        | Status      | Blocked by       |
 | -------------------------------------------- | ----------- | ---------------- |
-| 0. Project scaffolding                       | Not Started | None             |
-| 1. Tracer bullet (thinnest full stack slice) | Not Started | Phase 0          |
+| 0. Project scaffolding                       | Done        | None             |
+| 1. Tracer bullet (thinnest full stack slice) | Done        | Phase 0          |
 | 2. Backend feature completion                | Not Started | Phase 1          |
 | 3. Frontend feature completion               | Not Started | Phase 1, Phase 2 |
 | 4. Verification                              | Not Started | Phase 2, Phase 3 |
@@ -37,51 +37,57 @@ starting the next dependent task.
 
 ## Phase 0 — Project scaffolding
 
-**Status:** Not Started · **Blocked by:** None — can start immediately
+**Status:** Done · **Blocked by:** None — can start immediately
 
-- [ ] 0.1 Create `backend/` (Node + TypeScript + Express) and `frontend/` (Vite + React + TS)
+- [x] 0.1 Create `backend/` (Node + TypeScript + Express) and `frontend/` (Vite + React + TS)
       package skeletons per [AGENTS.md](AGENTS.md) repository layout.
       **Blocked by:** None. **Parallelizable** (separate directories, no shared files) —
       can run alongside 0.2 in its own worktree.
-- [ ] 0.2 Provision local Postgres (Docker Compose or local install) and wire `DATABASE_URL`.
-      **Blocked by:** None. **Parallelizable** — independent of 0.1.
+- [x] 0.2 Provision local Postgres (Docker Compose or local install) and wire `DATABASE_URL`.
+      **Blocked by:** None. **Parallelizable** — independent of 0.1. (Mapped to host port 5433 —
+      5432 was already in use by an unrelated project's container.)
 
 ---
 
 ## Phase 1 — Tracer bullet (thinnest full-stack slice)
 
-**Status:** Not Started · **Blocked by:** Phase 0
+**Status:** Done · **Blocked by:** Phase 0 (Done)
 
 **Goal:** one user can sign up, log in, create a single document, edit it, have it autosave and
 persist, and see it refresh via polling — nothing else. This validates the whole architecture
 (auth cookie flow, Prisma/Postgres, Express routing, React + poll timing) before Phases 2–3 add
 sharing, attachments, multi-document lists, and full shadcn/ui styling on top of it.
 
-- [ ] 1.1 Prisma schema: full schema per [docs/specs/data-model.md](docs/specs/data-model.md)
+**Status:** Done — verified end-to-end in-browser and via curl.
+
+- [x] 1.1 Prisma schema: full schema per [docs/specs/data-model.md](docs/specs/data-model.md)
       (`User`, `Document`, `DocumentAccess`, `Attachment`) and initial migration — built in full
       now since Phases 2–3 extend behavior on this schema, not its shape.
       **Blocked by:** 0.1, 0.2.
-- [ ] 1.2 Auth routes: signup, login, logout, me — bcrypt + JWT httpOnly cookie
+- [x] 1.2 Auth routes: signup, login, logout, me — bcrypt + JWT httpOnly cookie
       ([docs/specs/api.md](docs/specs/api.md) Auth table).
       **Blocked by:** 1.1.
-- [ ] 1.3 Minimal document routes: `POST /documents` (create), `GET /documents/:id`,
+- [x] 1.3 Minimal document routes: `POST /documents` (create), `GET /documents/:id`,
       `PUT /documents/:id` (versioned save, ADR-0001) — just enough for one document to round-trip.
-      No list endpoint yet (that's 2.1).
+      No list endpoint yet (that's 2.1). Verified end-to-end via curl (signup, create, save,
+      version bump, unauthenticated 401).
       **Blocked by:** 1.2.
-- [ ] 1.4 Minimal frontend: Vite + React + TS scaffold, `lib/api.ts` fetch wrapper
+- [x] 1.4 Minimal frontend: Vite + React + TS scaffold, `lib/api.ts` fetch wrapper
       (`credentials: 'include'`), signup/login form, and a single bare-bones editor screen
       (plain `<textarea>` or unstyled Tiptap — no shadcn/ui polish yet) with debounced save and
       ~3s poll per [docs/specs/editor-sync.md](docs/specs/editor-sync.md).
       **Blocked by:** 0.1 (scaffold can start immediately); needs 1.3 to integrate end-to-end.
-- [ ] 1.5 Tracer verification: sign up, log in, create a document, edit it, reload and confirm
+- [x] 1.5 Tracer verification: sign up, log in, create a document, edit it, reload and confirm
       persistence, open a second logged-in tab and confirm the poll picks up the version change.
+      Verified in-browser: signup → doc auto-created → autosave persists across reload → a
+      second tab's edit appears in the first (unfocused) tab within one poll cycle.
       **Blocked by:** 1.4.
 
 ---
 
 ## Phase 2 — Backend feature completion
 
-**Status:** Not Started · **Blocked by:** Phase 1
+**Status:** Not Started · **Blocked by:** Phase 1 (Done)
 
 - [ ] 2.1 Extend document routes to full list/create: `GET /documents` (list owned), `POST
     /documents` (create, ADR-0005) — generalizing 1.3's single-document create into "My
