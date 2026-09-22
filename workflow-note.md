@@ -145,3 +145,56 @@ tasks that are provably independent (by blockers + file boundaries)
 keeps the speed-up safe rather than assumed.
 
 ###
+
+### Decision: Writing docs/architecture.md as the "how it fits together" view
+
+**Prompt:** "use this to create the decided architecture for this
+scoped product" (pointing at the empty docs/architecture.md), followed
+by "update AGENTS.md to use this file when necessary."
+
+**What I got:** A populated architecture doc: a component diagram,
+a decisions table cross-referencing every ADR, three sequence diagrams
+(edit/autosave/poll, sharing, import vs. attach), and a security-notes
+section — synthesized from the PRD, ADRs, and specs rather than
+introducing anything new.
+
+**What I changed:** Added a pointer to it from AGENTS.md's Project
+section, positioned right after the PRD/ADR/specs reading order, so
+agents read it before touching cross-cutting concerns (auth, sync,
+file handling) instead of re-deriving the component boundaries from
+scattered specs each time.
+
+**Why this matters:** The PRD/ADRs/specs each answer "why" or "what
+exactly," but none show how the pieces connect end-to-end. Without a
+single fit-together view, an agent implementing one route in
+isolation could miss how it's supposed to interact with the others
+(e.g. which middleware gates it, which flow it's part of).
+
+###
+
+### Decision: Insert a tracer bullet phase before feature slices
+
+**Prompt:** "update progress-tracker.md and relevant docs to setup a
+tracing bullet first before we proceed to fleshing out product/mvp
+slices."
+
+**What I got:** A tracker with Phase 1 ("Backend foundation") and
+Phase 2 ("Frontend foundation") that already included sharing,
+attachments, and the multi-document list as part of the first pass —
+technically ordered, but not scoped to prove the architecture cheaply
+before committing to the full feature set.
+
+**What I changed:** Inserted a new Phase 1 "Tracer bullet": one user,
+one document, signup/login, create/edit/save/poll — nothing else.
+Pushed sharing, attachments, and the multi-document list into Phases
+2–3 ("Backend/Frontend feature completion"), explicitly built on top
+of what the tracer bullet proves out. Mirrored the same ordering
+principle into AGENTS.md's task-tracking section.
+
+**Why this matters:** Building the full route/UI surface before
+confirming the basic wire-up (cookie auth across origins, Prisma
+connection, poll timing, React↔Express integration) risks discovering
+an integration problem after most of the work is already sunk. A
+narrow, provable slice first de-risks the architecture cheaply.
+
+###

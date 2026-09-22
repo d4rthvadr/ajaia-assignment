@@ -5,6 +5,12 @@ Execution plan for the collaborative document editor, derived from
 a vertical slice group; each task lists what blocks it. Work the frontier — any task whose
 blockers are all Done can start. Review this before implementation begins.
 
+**Tracer bullet first:** Phase 1 proves the full request path end-to-end (browser → Express →
+Postgres → back, with auth cookie + polling) on the thinnest possible slice — one user, one
+document, no sharing, no attachments, no multi-doc list. Only after that path is proven do Phases
+2–3 flesh it out into the full feature set. This catches wiring/integration problems (cookie
+auth, CORS, Prisma connection, poll timing) before they're buried under feature work.
+
 Status legend: `Not Started` / `In Progress` / `Blocked` / `Done`
 
 ## Parallelization strategy
@@ -19,12 +25,13 @@ starting the next dependent task.
 
 ## Phase status overview
 
-| Phase                  | Status      | Blocked by       |
-| ---------------------- | ----------- | ---------------- |
-| 0. Project scaffolding | Not Started | None             |
-| 1. Backend foundation  | Not Started | Phase 0          |
-| 2. Frontend foundation | Not Started | Phase 0          |
-| 3. Verification        | Not Started | Phase 1, Phase 2 |
+| Phase                                        | Status      | Blocked by       |
+| -------------------------------------------- | ----------- | ---------------- |
+| 0. Project scaffolding                       | Not Started | None             |
+| 1. Tracer bullet (thinnest full stack slice) | Not Started | Phase 0          |
+| 2. Backend feature completion                | Not Started | Phase 1          |
+| 3. Frontend feature completion               | Not Started | Phase 1, Phase 2 |
+| 4. Verification                              | Not Started | Phase 2, Phase 3 |
 
 ---
 
@@ -41,73 +48,96 @@ starting the next dependent task.
 
 ---
 
-## Phase 1 — Backend foundation
+## Phase 1 — Tracer bullet (thinnest full-stack slice)
 
 **Status:** Not Started · **Blocked by:** Phase 0
 
-- [ ] 1.1 Prisma schema: `User`, `Document`, `DocumentAccess`, `Attachment` per
-      [docs/specs/data-model.md](docs/specs/data-model.md); run initial migration.
+**Goal:** one user can sign up, log in, create a single document, edit it, have it autosave and
+persist, and see it refresh via polling — nothing else. This validates the whole architecture
+(auth cookie flow, Prisma/Postgres, Express routing, React + poll timing) before Phases 2–3 add
+sharing, attachments, multi-document lists, and full shadcn/ui styling on top of it.
+
+- [ ] 1.1 Prisma schema: full schema per [docs/specs/data-model.md](docs/specs/data-model.md)
+      (`User`, `Document`, `DocumentAccess`, `Attachment`) and initial migration — built in full
+      now since Phases 2–3 extend behavior on this schema, not its shape.
       **Blocked by:** 0.1, 0.2.
 - [ ] 1.2 Auth routes: signup, login, logout, me — bcrypt + JWT httpOnly cookie
-      ([docs/specs/api.md](docs/specs/api.md) Auth table; ADR referenced: none, foundational).
+      ([docs/specs/api.md](docs/specs/api.md) Auth table).
       **Blocked by:** 1.1.
-- [ ] 1.3 Document routes: `GET/POST /documents` (list/create, ADR-0005), `GET /documents/:id`,
-      `PUT /documents/:id` (versioned save, ADR-0001).
-      **Blocked by:** 1.1, 1.2.
-- [ ] 1.4 Sharing routes: `POST /documents/:id/share`, `GET /documents/:id/shares`,
+- [ ] 1.3 Minimal document routes: `POST /documents` (create), `GET /documents/:id`,
+      `PUT /documents/:id` (versioned save, ADR-0001) — just enough for one document to round-trip.
+      No list endpoint yet (that's 2.1).
+      **Blocked by:** 1.2.
+- [ ] 1.4 Minimal frontend: Vite + React + TS scaffold, `lib/api.ts` fetch wrapper
+      (`credentials: 'include'`), signup/login form, and a single bare-bones editor screen
+      (plain `<textarea>` or unstyled Tiptap — no shadcn/ui polish yet) with debounced save and
+      ~3s poll per [docs/specs/editor-sync.md](docs/specs/editor-sync.md).
+      **Blocked by:** 0.1 (scaffold can start immediately); needs 1.3 to integrate end-to-end.
+- [ ] 1.5 Tracer verification: sign up, log in, create a document, edit it, reload and confirm
+      persistence, open a second logged-in tab and confirm the poll picks up the version change.
+      **Blocked by:** 1.4.
+
+---
+
+## Phase 2 — Backend feature completion
+
+**Status:** Not Started · **Blocked by:** Phase 1
+
+- [ ] 2.1 Extend document routes to full list/create: `GET /documents` (list owned), `POST
+    /documents` (create, ADR-0005) — generalizing 1.3's single-document create into "My
+      documents."
+      **Blocked by:** 1.3.
+- [ ] 2.2 Sharing routes: `POST /documents/:id/share`, `GET /documents/:id/shares`,
       `GET /documents/shared-with-me` (`DocumentAccess` grants, ADR-0002).
-      **Blocked by:** 1.3. **Parallelizable** with 1.5 once 1.3 is `Done` — separate route
+      **Blocked by:** 2.1. **Parallelizable** with 2.3 once 2.1 is `Done` — separate route
       modules, no shared files.
-- [ ] 1.5 Attachment routes: upload, list, download, import-as-content — `.txt`/`.md` only,
+- [ ] 2.3 Attachment routes: upload, list, download, import-as-content — `.txt`/`.md` only,
       randomized stored filenames (ADR-0004).
-      **Blocked by:** 1.3. **Parallelizable** with 1.4 once 1.3 is `Done`.
+      **Blocked by:** 2.1. **Parallelizable** with 2.2 once 2.1 is `Done`.
 
 ---
 
-## Phase 2 — Frontend foundation
+## Phase 3 — Frontend feature completion
 
-**Status:** Not Started · **Blocked by:** Phase 0 (route contracts from Phase 1 needed to
-integrate, but UI shell can scaffold in parallel)
+**Status:** Not Started · **Blocked by:** Phase 1 (tracer bullet UI shell), Phase 2 (routes)
 
-- [ ] 2.1 Scaffold Vite + React + TS app; `lib/api.ts` fetch wrapper with `credentials: 'include'`.
-      **Blocked by:** 0.1.
-- [ ] 2.2 Auth screens (signup/login), redirect to documents list on success.
-      **Blocked by:** 1.2, 2.1.
-- [ ] 2.3 Documents list page: "My documents" (create + open) and "Shared with me" (ADR-0005,
+- [ ] 3.1 Install and configure shadcn/ui + Tailwind; restyle the tracer bullet's auth/editor
+      screens per [docs/ui-tokens.md](docs/ui-tokens.md) and [docs/ui-rules.md](docs/ui-rules.md).
+      **Blocked by:** 1.4.
+- [ ] 3.2 Documents list page: "My documents" (create + open) and "Shared with me" (ADR-0005,
       ADR-0002), visibly distinguishing the two.
-      **Blocked by:** 1.3, 1.4, 2.2.
-- [ ] 2.4 Editor page: Tiptap rich text, debounced autosave, ~3s poll for version changes
-      ([docs/specs/editor-sync.md](docs/specs/editor-sync.md)).
-      **Blocked by:** 1.3, 2.3.
-- [ ] 2.5 Sharing UI: "grant access by email" action, list of current shares.
-      **Blocked by:** 1.4, 2.4. **Parallelizable** with 2.6 once 2.4 is `Done` — distinct UI
+      **Blocked by:** 2.1, 3.1.
+- [ ] 3.3 Editor page: replace the tracer bullet's bare editor with the full Tiptap rich text
+      toolbar (bold/italic/headings/lists) per [docs/specs/editor-sync.md](docs/specs/editor-sync.md).
+      **Blocked by:** 3.2.
+- [ ] 3.4 Sharing UI: "grant access by email" action, list of current shares.
+      **Blocked by:** 2.2, 3.3. **Parallelizable** with 3.5 once 3.3 is `Done` — distinct UI
       panels, no shared files.
-- [ ] 2.6 Attachments panel: upload, list with download links, "import as content" action.
-      **Blocked by:** 1.5, 2.4. **Parallelizable** with 2.5 once 2.4 is `Done`.
+- [ ] 3.5 Attachments panel: upload, list with download links, "import as content" action.
+      **Blocked by:** 2.3, 3.3. **Parallelizable** with 3.4 once 3.3 is `Done`.
 
 ---
 
-## Phase 3 — Verification
+## Phase 4 — Verification
 
-**Status:** Not Started · **Blocked by:** Phase 1, Phase 2
+**Status:** Not Started · **Blocked by:** Phase 2, Phase 3
 
-- [ ] 3.1 End-to-end smoke test: signup → create document → edit → autosave persists across
+- [ ] 4.1 End-to-end smoke test: signup → create document → edit → autosave persists across
       reload → grant access to a second account → second account sees it under "Shared with me"
       and polling reflects edits → upload `.txt`/`.md` attachment → download it → import a
       `.md` file as content → confirm non-`.txt`/`.md` upload is rejected.
-      **Blocked by:** Phase 1 and Phase 2 complete.
-- [ ] 3.2 Finalize `README.md` setup steps (env vars, Postgres, `prisma migrate`, `npm run dev`
+      **Blocked by:** Phase 2 and Phase 3 complete.
+- [ ] 4.2 Finalize `README.md` setup steps (env vars, Postgres, `prisma migrate`, `npm run dev`
       for backend + frontend).
-      **Blocked by:** 3.1.
+      **Blocked by:** 4.1.
 
 ---
 
 ## Notes
 
-- Sequence within Phase 1 and Phase 2 is mostly linear (each task blocks the next); Phase 1 and
-  Phase 2 scaffolding (0.x, 1.1, 2.1) can run in parallel, but integration tasks (2.2–2.6) need
-  their corresponding backend routes done first.
-- Tasks tagged **Parallelizable** (0.1/0.2, 1.4/1.5, 2.5/2.6) may be delegated to subagents in
+- Phase 1 (tracer bullet) is deliberately narrow and mostly linear — it exists to de-risk the
+  architecture, not to deliver features. Don't add sharing/attachments/list-view scope into it.
+- Tasks tagged **Parallelizable** (0.1/0.2, 2.2/2.3, 3.4/3.5) may be delegated to subagents in
   separate `git worktree`s per the strategy above; everything else should be done serially in
   this tracker's listed order.
 - No task in this tracker touches anything listed as out-of-scope in the PRD (real-time

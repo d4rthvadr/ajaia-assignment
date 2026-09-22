@@ -49,6 +49,9 @@ docs/      PRD, ADRs, specs
 
 - Follow [progress-tracker.md](progress-tracker.md) for phase/task order and blocking edges.
   Only start a task once every task it's blocked by is `Done`.
+- Build the tracer bullet (Phase 1 in the tracker) before fleshing out feature slices: prove one
+  user can sign up, create a single document, edit/autosave/poll it end-to-end first. Don't add
+  sharing, attachments, or multi-document UI into that phase — those land in Phases 2–3.
 - A subagent may take a task in its own `git worktree` only when the task is tagged
   **Parallelizable** in the tracker (or is clearly independent by the same rule: blockers all
   `Done`, no file overlap with another in-flight task). Merge each worktree back sequentially and
