@@ -19,6 +19,29 @@ value I added was recognizing the failure mode, not the code itself.
 
 ###
 
+### Decision: Shared documents are view-only, not collaborative editing spaces
+
+**Prompt:** Clarify what access a recipient gets when an owner shares a
+document with them.
+
+**What I got:** The product uses the word "collaborative," but the locked
+scope intentionally avoids real-time multi-user editing, conflict resolution,
+and richer roles. A shared document could otherwise be mistaken for an
+editable collaboration session.
+
+**What I changed:** Kept sharing explicitly view-only. The owner remains the
+only account allowed to edit and save content; recipients can open the
+document, see it under "Shared with me," and receive newer owner changes
+through polling. The UI labels the recipient state as "View only" and the
+backend rejects viewer writes.
+
+**Why this matters:** This makes the permission boundary honest and protects
+the simple last-write-wins model. Real collaborative editing would require a
+different concurrency and role design, so it remains outside this pass rather
+than being implied by the share flow.
+
+###
+
 ### Decision: Use focused navigation and action surfaces for secondary workflows
 
 **Prompt:** Improve the UX for sharing and file actions with navigation bars,
