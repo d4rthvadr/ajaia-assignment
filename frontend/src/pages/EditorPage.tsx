@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Heading2, Italic, List, ListOrdered } from "lucide-react";
+import {
+  Bold,
+  Download,
+  FileUp,
+  Heading2,
+  Italic,
+  List,
+  ListOrdered,
+  Paperclip,
+  Share2,
+} from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError, type Attachment, type ShareUser } from "../lib/api";
 
@@ -243,7 +253,10 @@ export function EditorPage() {
           {canEdit && (
             <section className="editor-panel">
               <div className="panel-heading">
-                <h2>Share access</h2>
+                <div className="panel-title">
+                  <Share2 size={16} aria-hidden="true" />
+                  <h2>Share access</h2>
+                </div>
                 <span>
                   {shares.length} viewer{shares.length === 1 ? "" : "s"}
                 </span>
@@ -275,7 +288,10 @@ export function EditorPage() {
           )}
           <section className="editor-panel">
             <div className="panel-heading">
-              <h2>Attachments</h2>
+              <div className="panel-title">
+                <Paperclip size={16} aria-hidden="true" />
+                <h2>Attachments</h2>
+              </div>
               <span>
                 {attachments.length} file{attachments.length === 1 ? "" : "s"}
               </span>
@@ -283,6 +299,7 @@ export function EditorPage() {
             {canEdit && (
               <div className="file-actions">
                 <label className="button button-secondary">
+                  <FileUp size={16} aria-hidden="true" />
                   Upload file
                   <input
                     className="visually-hidden"
@@ -292,6 +309,7 @@ export function EditorPage() {
                   />
                 </label>
                 <label className="button button-ghost">
+                  <FileUp size={16} aria-hidden="true" />
                   Import as content
                   <input
                     className="visually-hidden"
@@ -308,6 +326,7 @@ export function EditorPage() {
                   <li key={attachment.id}>
                     <span>{attachment.filename}</span>
                     <a href={api.attachmentDownloadUrl(attachment.id)}>
+                      <Download size={14} aria-hidden="true" />
                       Download
                     </a>
                   </li>

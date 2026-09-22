@@ -19,6 +19,33 @@ value I added was recognizing the failure mode, not the code itself.
 
 ###
 
+### Decision: Use a Docs-style visual direction and keep the UI pass lean
+
+**Prompt:** Reference Google Docs screens for the product's layout, spacing,
+typography, colors, and brand direction before continuing to the next phase.
+
+**What I got:** The existing frontend was functional but visually inconsistent:
+it used a green editorial palette, a starter-style shell, and UI guidance that
+still described generic shadcn/Zinc defaults. The reference screens suggested a
+familiar writing utility instead: a compact white app bar, pale gray workspace,
+blue document identity, restrained borders, and a white paper-like editor.
+
+**What I changed:** Extracted the direction into [docs/ui-tokens.md](docs/ui-tokens.md)
+and [docs/ui-rules.md](docs/ui-rules.md), covering layout widths, spacing,
+radius, typography hierarchy, brand colors, focus/hover behavior, and explicit
+visual non-goals. Applied a small CSS-only refresh to the auth, documents, and
+editor surfaces without changing routes, state, or API behavior. Added Phase
+3.6 to [progress-tracker.md](progress-tracker.md) so the design pass is an
+explicit gate before verification.
+
+**Why this matters:** A short design contract prevents each screen from
+inventing its own visual language and keeps the product recognizable under the
+time constraint. Limiting the implementation to tokens, spacing, typography,
+color, and existing component surfaces gives the app a coherent direction
+without delaying the core document workflow.
+
+###
+
 ### Decision: Use Multer for the initial file-upload path
 
 **Prompt:** With limited time for setting up real blob storage, choose a lean

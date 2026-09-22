@@ -1,12 +1,12 @@
 # UI Rules
 
-Conventions for building the frontend with shadcn/ui. This is a living doc — update it only when
-a new pattern is actually needed, not preemptively.
+Conventions for the Docs-style writing workspace. This is a living doc; add a rule only when a
+new product pattern actually appears.
 
 ## Core rule
 
-Use a shadcn/ui component if one exists for the job. Only build a custom component when no
-shadcn primitive fits — don't recreate what the library already provides.
+Use a shadcn/ui primitive if one exists for the job. Keep the visual language close to a familiar
+document editor: compact controls, clear labels, white surfaces, and content-first spacing.
 
 ## Component mapping (add rows here as new UI needs arise)
 
@@ -24,11 +24,14 @@ shadcn primitive fits — don't recreate what the library already provides.
 
 ## Layout
 
-- Page shell: simple centered container (`max-w-2xl` for editor/forms, `max-w-4xl` for document
-  lists) — no sidebar/nav chrome beyond what's needed (this is not a full workspace app, per
-  ADR-0005).
-- No responsive/mobile-specific design pass in this build — desktop-width layout is sufficient
-  for the timebox; components should just not visibly break on a narrower viewport.
+- Use a full-width pale workspace with a compact white app bar.
+- Keep the document list in a centered 960px-1200px content region; use a 700px reading column for
+  the editor.
+- The editor is a white paper surface inside the workspace. Keep toolbar and metadata outside the
+  writing area so content stays calm and legible.
+- Responsive behavior is limited to stacking columns and reducing gutters; controls must remain
+  usable at narrow widths.
+- Do not create decorative hero sections, nested cards, or a permanent dashboard sidebar.
 
 ## Forms
 
@@ -36,6 +39,21 @@ shadcn primitive fits — don't recreate what the library already provides.
   share-by-email form — consistent client-side validation before hitting the API.
 - Server error responses (400/403/404 per [docs/specs/api.md](specs/api.md)) surface as an inline
   `Alert`, not a silent console log.
+
+## Typography And Color
+
+- Use `"Google Sans", Arial, sans-serif` for interface text and Georgia only for the editor canvas.
+- Use `#202124` for primary text, `#5f6368` for supporting text, and `#1a73e8` for brand actions.
+- Reserve red for errors. Do not use green as the primary brand color without updating the token
+  contract.
+- Headings should be sentence case and concise. Avoid promotional copy in workspace screens.
+
+## Interaction
+
+- Every icon-only button needs an accessible label and a tooltip/title for unfamiliar actions.
+- Keep primary actions text-plus-icon when the action is not universally recognizable.
+- Use blue focus rings and visible hover states; never remove browser focus indication.
+- Loading, empty, error, owner, and viewer states should occupy the same layout region.
 
 ## Accessibility baseline
 
@@ -45,9 +63,11 @@ shadcn primitive fits — don't recreate what the library already provides.
 
 ## Explicit non-goals
 
-- No dark mode toggle, no theming beyond the default shadcn Zinc theme, no animation library
-  beyond what shadcn components already include.
+- No dark mode toggle, no custom font download, no animation library, and no decorative motion in
+  this timeboxed pass.
 
 ## Change log
 
 - Initial rules defined alongside shadcn/ui adoption (2026-09-22).
+- Docs-style layout, brand, typography, and color direction extracted from the supplied reference
+  screens (2026-09-22).

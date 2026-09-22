@@ -89,23 +89,18 @@ sharing, attachments, multi-document lists, and full shadcn/ui styling on top of
 
 **Status:** Not Started · **Blocked by:** Phase 1 (Done)
 
-- [x] 2.1 Extend document routes to full list/create: `GET /documents` (list owned), `POST
     /documents` (create, ADR-0005) — generalizing 1.3's single-document create into "My
       documents."
-      **Blocked by:** 1.3.
+
 - [x] 2.2 Sharing routes: `POST /documents/:id/share`, `GET /documents/:id/shares`,
       `GET /documents/shared-with-me` (`DocumentAccess` grants, ADR-0002).
-      **Blocked by:** 2.1. **Parallelizable** with 2.3 once 2.1 is `Done` — separate route
       modules, no shared files.
 - [x] 2.3 Attachment routes: upload, list, download, import-as-content — `.txt`/`.md` only,
-      randomized stored filenames (ADR-0004).
       **Blocked by:** 2.1. **Parallelizable** with 2.2 once 2.1 is `Done`.
-
----
 
 ## Phase 3 — Frontend feature completion
 
-**Status:** Not Started · **Blocked by:** Phase 1 (tracer bullet UI shell), Phase 2 (routes)
+**Status:** Done · **Blocked by:** Phase 1 (tracer bullet UI shell), Phase 2 (routes)
 
 - [x] 3.1 Install and configure shadcn/ui + Tailwind; restyle the tracer bullet's auth/editor
       screens per [docs/ui-tokens.md](docs/ui-tokens.md) and [docs/ui-rules.md](docs/ui-rules.md).
@@ -121,6 +116,10 @@ sharing, attachments, multi-document lists, and full shadcn/ui styling on top of
       panels, no shared files.
 - [x] 3.5 Attachments panel: upload, list with download links, "import as content" action.
       **Blocked by:** 2.3, 3.3. **Parallelizable** with 3.4 once 3.3 is `Done`.
+- [x] 3.6 Reference-led visual system pass: extract layout, spacing, typography, colors, brand
+      direction, and interaction rules into [docs/ui-tokens.md](docs/ui-tokens.md) and
+      [docs/ui-rules.md](docs/ui-rules.md), then apply the lean visual refresh to the frontend.
+      **Blocked by:** 3.5.
 
 ---
 
