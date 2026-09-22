@@ -57,6 +57,10 @@ docs/      PRD, ADRs, specs
   `Done`, no file overlap with another in-flight task). Merge each worktree back sequentially and
   re-run verification before starting the next dependent task.
 - Do not parallelize sequential edits to the same files, or tasks whose blockers aren't finished.
+- Commit as you go: once a tracker task (or a coherent unit of work within one) is complete and
+  verified, commit it with a [Conventional Commits](https://www.conventionalcommits.org/) message
+  (e.g. `feat(auth): add signup/login routes`) rather than letting changes pile up across
+  multiple tasks into one large commit.
 
 ## Conventions
 
@@ -83,3 +87,22 @@ Before considering a change done:
 - Frontend: `npm run dev` and manually exercise the affected flow (edit/save/poll, share link,
   upload/import).
 - Confirm non-`.txt`/`.md` uploads are still rejected if touching upload code.
+
+## Validation commands
+
+Run these from the relevant package (`backend/` or `frontend/`) after a change, before marking a
+tracker task `Done`:
+
+- `npm run typecheck` (or `tsc --noEmit`) — both packages must compile with no type errors.
+- `npm run lint` — both packages must pass lint clean.
+- `npm test` — run whatever automated tests exist for the changed area; do not skip a failing
+  test to move on.
+- Backend only: `npx prisma migrate dev` after any `schema.prisma` change, then
+  `npx prisma studio` (or a `psql` query) to confirm the change landed as expected.
+- Backend only: exercise the changed route directly, e.g.
+  `curl -i -c cookies.txt -X POST http://localhost:PORT/api/auth/login -H "Content-Type: application/json" -d '{"email":"...","password":"..."}'`,
+  then reuse `cookies.txt` (`-b cookies.txt`) for authenticated follow-up requests.
+- Frontend only: `npm run build` — a production build must succeed, not just the dev server.
+
+If any of these commands don't exist yet in a package's `package.json`, add them as part of the
+scaffolding task rather than skipping validation.
