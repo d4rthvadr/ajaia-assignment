@@ -1,40 +1,118 @@
 # Lightweight Collaborative Document Editor
 
-A stripped-down, Google-Docs-inspired document editor, scoped for a 2-hour build. Users create
-and own documents, edit them with a minimal rich text toolbar, share view-only access with other
-users by email, and attach or import `.txt`/`.md` files — built with sound, explicit trade-offs
-rather than a broad but broken feature set.
-
-## Status
-Documentation (PRD, ADRs, specs) is complete; implementation has not started yet. See
-[workflow-note.md](workflow-note.md) for the reasoning trail behind each scope decision.
-
-## Docs
-- [docs/PRD.md](docs/PRD.md) — problem, goals/non-goals, functional scope, success criteria.
-- [docs/adr/](docs/adr/) — one decision record per scope cut (sync model, sharing model,
-  document ownership, persistence/storage).
-- [docs/specs/](docs/specs/) — the concrete data model, API contract, and editor sync behavior
-  to implement against.
-- [AGENTS.md](AGENTS.md) — guardrails for any agent (human or AI) picking up this repo.
-
-## Scope at a glance
-- **Editing** — a user can own multiple documents; minimal rich text (bold/italic/headings/lists)
-  via Tiptap; debounced autosave.
-- **Sharing** — owner grants view-only access to another existing user by email; shared documents
-  appear in a separate "Shared with me" list. No anonymous links, no per-user roles.
-- **File upload** — `.txt`/`.md` only, either imported as a document's content or attached and
-  downloadable.
-- **Persistence** — Postgres via Prisma; documents, access grants, and attachments survive
-  restarts.
-- **Sync** — polling (~3s), last-write-wins on save. No WebSockets, no CRDT/OT.
+A focused, Google-Docs-inspired editor for creating documents, editing rich text, granting
+view-only access, and working with `.txt` and `.md` files. The app uses polling and last-write-wins
+saves to keep the implementation small and easy to run locally.
 
 ## Stack
-- Backend: Node.js + TypeScript + Express, Prisma ORM, Postgres.
-- Frontend: Vite + React + TypeScript, Tiptap (free/open-source packages only).
-- Auth: bcrypt password hashing, JWT in an httpOnly cookie.
-- File storage: local filesystem (`uploads/`).
+
+- Node.js 24, TypeScript, and Express 5
+- React, Vite, Tailwind CSS, and Tiptap
+- PostgreSQL with Prisma
+- JWT sessions in an httpOnly cookie
+- Multer with project-local `uploads/` storage for attachments
+
+## Prerequisites
+
+- Node.js 24 (`nvm use` reads the repository `.nvmrc`)
+- npm
+- Docker with Docker Compose, or a PostgreSQL database matching the connection string below
 
 ## Setup
-Not yet available — the app is documentation-only at this point. Once the backend/frontend are
-scaffolded, this section will cover: Postgres connection setup, `prisma migrate`, and running
-`npm run dev` for both the backend and frontend.
+
+From the repository root:
+
+```bash
+docker compose up -d
+```
+
+Create the backend environment file:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+For local development, the example values use:
+
+```text
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/ajaia_dev?schema=public
+JWT_SECRET=change-me-in-real-env
+PORT=4000
+```
+
+Install dependencies and apply the Prisma migrations:
+
+```bash
+cd backend
+npm install
+npx prisma migrate dev
+cd ../frontend
+npm install
+```
+
+## Run
+
+Start the backend in one terminal:
+
+```bash
+cd backend
+npm run dev
+```
+
+Start the frontend in a second terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open [http://localhost:5173/login](http://localhost:5173/login). The root URL redirects to the
+documents workspace; unauthenticated users are sent back to the login page after the API responds.
+The backend must be running on port `4000` unless `PORT` or `VITE_API_BASE` is changed.
+
+## Using The App
+
+1. Create an account or log in.
+2. Create a document from the documents workspace and open it.
+3. Edit with the rich text toolbar. Changes autosave after a short debounce and refresh through
+   polling approximately every three seconds.
+4. Share a document with another existing account by entering its email. Shared users have
+   read-only access and see the document under **Shared with me**.
+5. Upload `.txt` or `.md` files as attachments, download them, or import one as document content.
+   Upload validation checks both the file extension and reported MIME type.
+
+## Useful Commands
+
+Backend:
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+```
+
+Frontend:
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+npm test
+```
+
+Run these from the relevant package directory. The test scripts are currently smoke-test
+placeholders; route and browser verification remains part of the local development workflow.
+
+## Project Docs
+
+- [docs/PRD.md](docs/PRD.md) — goals, scope, and non-goals.
+- [docs/adr/](docs/adr/) — decisions behind sync, sharing, ownership, and storage.
+- [docs/specs/](docs/specs/) — data model, API contract, and editor sync behavior.
+- [docs/architecture.md](docs/architecture.md) — how the application pieces fit together.
+- [workflow-note.md](workflow-note.md) — implementation decisions and trade-offs.
+- [AGENTS.md](AGENTS.md) — repository conventions and verification requirements.
+
+## Scope Notes
+
+This pass intentionally does not include WebSockets, CRDT/OT collaboration, anonymous links,
+granular roles, document deletion/renaming/search, cloud blob storage, or deployment configuration.

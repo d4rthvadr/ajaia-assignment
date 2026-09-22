@@ -30,8 +30,8 @@ starting the next dependent task.
 | 0. Project scaffolding                       | Done        | None             |
 | 1. Tracer bullet (thinnest full stack slice) | Done        | Phase 0          |
 | 2. Backend feature completion                | Done        | Phase 1          |
-| 3. Frontend feature completion               | In Progress | Phase 1, Phase 2 |
-| 4. Verification                              | Not Started | Phase 2, Phase 3 |
+| 3. Frontend feature completion               | Done        | Phase 1, Phase 2 |
+| 4. Verification                              | In Progress | Phase 2, Phase 3 |
 
 ---
 
@@ -107,19 +107,19 @@ sharing, attachments, multi-document lists, and full shadcn/ui styling on top of
 
 **Status:** Not Started · **Blocked by:** Phase 1 (tracer bullet UI shell), Phase 2 (routes)
 
-- [ ] 3.1 Install and configure shadcn/ui + Tailwind; restyle the tracer bullet's auth/editor
+- [x] 3.1 Install and configure shadcn/ui + Tailwind; restyle the tracer bullet's auth/editor
       screens per [docs/ui-tokens.md](docs/ui-tokens.md) and [docs/ui-rules.md](docs/ui-rules.md).
       **Blocked by:** 1.4.
-- [ ] 3.2 Documents list page: "My documents" (create + open) and "Shared with me" (ADR-0005,
+- [x] 3.2 Documents list page: "My documents" (create + open) and "Shared with me" (ADR-0005,
       ADR-0002), visibly distinguishing the two.
       **Blocked by:** 2.1, 3.1.
-- [ ] 3.3 Editor page: replace the tracer bullet's bare editor with the full Tiptap rich text
+- [x] 3.3 Editor page: replace the tracer bullet's bare editor with the full Tiptap rich text
       toolbar (bold/italic/headings/lists) per [docs/specs/editor-sync.md](docs/specs/editor-sync.md).
       **Blocked by:** 3.2.
-- [ ] 3.4 Sharing UI: "grant access by email" action, list of current shares.
+- [x] 3.4 Sharing UI: "grant access by email" action, list of current shares.
       **Blocked by:** 2.2, 3.3. **Parallelizable** with 3.5 once 3.3 is `Done` — distinct UI
       panels, no shared files.
-- [ ] 3.5 Attachments panel: upload, list with download links, "import as content" action.
+- [x] 3.5 Attachments panel: upload, list with download links, "import as content" action.
       **Blocked by:** 2.3, 3.3. **Parallelizable** with 3.4 once 3.3 is `Done`.
 
 ---

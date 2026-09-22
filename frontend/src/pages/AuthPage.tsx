@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, ApiError } from "../lib/api";
 
-// Tracer bullet: bare-bones combined signup/login form, no shadcn/ui styling yet.
 export function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
@@ -22,13 +21,7 @@ export function AuthPage() {
         await api.login(email, password);
       }
 
-      let docId = localStorage.getItem("tracerDocId");
-      if (!docId) {
-        const { document } = await api.createDocument("My First Document");
-        docId = document.id;
-        localStorage.setItem("tracerDocId", docId);
-      }
-      navigate(`/doc/${docId}`);
+      navigate("/documents");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
@@ -37,42 +30,56 @@ export function AuthPage() {
   }
 
   return (
-    <div style={{ maxWidth: 320, margin: "80px auto", fontFamily: "sans-serif" }}>
-      <h1>{mode === "login" ? "Log in" : "Sign up"}</h1>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 8 }}>
-          <label>
-            Email
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ display: "block", width: "100%" }}
-            />
-          </label>
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <label>
-            Password
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ display: "block", width: "100%" }}
-            />
-          </label>
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit" disabled={busy}>
-          {mode === "login" ? "Log in" : "Sign up"}
+    <main className="auth-shell">
+      <section className="auth-panel">
+        <p className="eyebrow">Draftroom</p>
+        <h1>
+          {mode === "login" ? "Welcome back" : "Make room for good ideas"}
+        </h1>
+        <p className="lede">
+          A quiet place to write, shape, and share documents.
+        </p>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {error && (
+            <p className="alert" role="alert">
+              {error}
+            </p>
+          )}
+          <button
+            className="button button-primary button-wide"
+            type="submit"
+            disabled={busy}
+          >
+            {mode === "login" ? "Log in" : "Sign up"}
+          </button>
+        </form>
+        <button
+          className="text-button"
+          type="button"
+          onClick={() => setMode(mode === "login" ? "signup" : "login")}
+        >
+          {mode === "login"
+            ? "Need an account? Sign up"
+            : "Have an account? Log in"}
         </button>
-      </form>
-      <button type="button" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
-        {mode === "login" ? "Need an account? Sign up" : "Have an account? Log in"}
-      </button>
-    </div>
+      </section>
+    </main>
   );
 }
