@@ -19,6 +19,74 @@ value I added was recognizing the failure mode, not the code itself.
 
 ###
 
+### Decision: Use focused navigation and action surfaces for secondary workflows
+
+**Prompt:** Improve the UX for sharing and file actions with navigation bars,
+pop-up dialogs, and drop-down menus where those patterns fit naturally.
+
+**What I got:** Sharing and attachment actions were presented inline beside
+the editor, competing with the writing surface and making the lower area feel
+busy. The product only needs a small number of secondary workflows, not a
+full dashboard shell.
+
+**What I changed:** Added compact navigation to the workspace and editor,
+moved sharing into a Radix Dialog, and grouped upload/import choices in a
+Radix DropdownMenu while keeping downloads visible next to each attachment.
+The underlying routes and permission model stayed unchanged.
+
+**Why this matters:** Each action now appears in the interaction pattern users
+expect without adding permanent navigation chrome or expanding the product
+scope. The writing canvas remains the primary surface and secondary actions
+are easier to discover.
+
+### Decision: Prefer a simple shared UI approach under the timebox
+
+**Prompt:** Given the limited time and deliberately small product scope,
+choose between building a broader feature-slice component system and using a
+small, reusable UI foundation now.
+
+**What I got:** A full shadcn setup would add configuration and component
+surface area that the current app does not need. The actual recurring needs
+are buttons, text inputs, labels, badges, dialogs, and menus.
+
+**What I changed:** Kept the implementation lean: copied the small
+shadcn-style primitives needed by the current screens, reused Radix only for
+focus-managed overlays, and documented the choices in `ui-tokens.md`,
+`ui-rules.md`, and `AGENTS.md`. Deferred broader component coverage until a
+real workflow requires it.
+
+**Why this matters:** The app gets consistent controls and accessibility
+behavior without spending the remaining time on infrastructure that does not
+serve the current scope. The shared layer can grow incrementally without
+forcing a speculative design system.
+
+###
+
+### Decision: Add shared UI primitives and focused action surfaces
+
+**Prompt:** The first visual pass still relied on scattered raw HTML controls,
+so sharing, uploads, and navigation felt inconsistent. Improve the UX with
+appropriate navbars, a share modal, and a file-actions menu.
+
+**What I got:** The frontend already had Tailwind, Lucide, and class-variance
+utilities, but no shared `components/ui` layer. Sharing was embedded in the
+editor footer and upload/import actions were presented as unrelated buttons,
+which made the lower editor area feel crowded and inconsistent.
+
+**What I changed:** Added shared shadcn-style primitives for buttons, text
+inputs, labels, and status badges, then adopted them across auth, documents,
+and editor screens. Added Radix Dialog for the share flow, Radix DropdownMenu
+for upload/import choices, and compact navigation in the workspace and editor
+app bars. The share dialog stays open when the server rejects a grant and only
+closes after success.
+
+**Why this matters:** Shared primitives give the UI one visual and accessibility
+contract, while dialogs and menus keep secondary actions out of the writing
+surface. This improves discoverability without expanding the product scope or
+changing the underlying document, sharing, or attachment APIs.
+
+###
+
 ### Decision: Use a Docs-style visual direction and keep the UI pass lean
 
 **Prompt:** Reference Google Docs screens for the product's layout, spacing,

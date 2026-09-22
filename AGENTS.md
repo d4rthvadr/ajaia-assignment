@@ -71,8 +71,16 @@ docs/      PRD, ADRs, specs
 - Follow [docs/specs/data-model.md](docs/specs/data-model.md) for Prisma schema shape.
 - Follow [docs/specs/editor-sync.md](docs/specs/editor-sync.md) for save-debounce/poll behavior.
 - Follow [docs/ui-tokens.md](docs/ui-tokens.md) and [docs/ui-rules.md](docs/ui-rules.md) for UI
-  component/token choices; these are living docs — extend them only when a new pattern is
-  actually needed, not preemptively.
+  component/token choices. Read both before making frontend visual or interaction changes; they
+  are the source of truth for layout, spacing, typography, colors, brand direction, and patterns.
+- Use the shared shadcn-style primitives in `frontend/src/components/ui/` before writing a raw
+  button, input, label, badge, card, dialog, or dropdown. Extend a shared primitive when the
+  behavior is common; do not create page-local variants that drift visually.
+- Use Radix primitives for dialogs, dropdown menus, and other focus-managed overlays. Keep their
+  styling aligned with `ui-tokens.md` and their usage documented in `ui-rules.md`.
+- When a new UI pattern is genuinely required, update `docs/ui-tokens.md` and/or
+  `docs/ui-rules.md` in the same change. Do not introduce a new color, spacing scale, typography
+  rule, or interaction pattern silently.
 - Validate backend request bodies with Zod schemas through the shared `validateBody` middleware;
   do not add ad hoc `typeof req.body` checks in route handlers. Keep client-facing validation
   messages generic and do not expose Zod issue details.

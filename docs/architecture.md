@@ -9,7 +9,7 @@ the "how it fits together" view.
 ```mermaid
 flowchart LR
     subgraph Client [Frontend — Vite + React + TS]
-        UI[shadcn/ui components]
+        UI[Shared shadcn-style primitives]
         Editor[Tiptap editor]
         API_Client[lib/api.ts fetch wrapper]
     end
@@ -17,7 +17,7 @@ flowchart LR
     subgraph Server [Backend — Node.js + Express + TS]
         Auth[Auth routes]
         Docs[Document routes]
-        Share[Sharing routes]
+        Share[Sharing handlers in document routes]
         Files[Attachment routes]
         Mid[requireAuth middleware]
     end
@@ -41,18 +41,20 @@ flowchart LR
 
 ## Components
 
-- **Frontend** — Vite + React + TypeScript SPA. shadcn/ui + Tailwind for components
-  ([docs/ui-tokens.md](ui-tokens.md), [docs/ui-rules.md](ui-rules.md)); Tiptap (free/open-source
-  packages only) for rich text editing. Talks to the backend exclusively through
-  `src/lib/api.ts`, a thin `fetch` wrapper sending `credentials: 'include'` so the session cookie
-  rides along automatically.
+- **Frontend** — Vite + React + TypeScript SPA. Shared shadcn-style primitives live under
+  `frontend/src/components/ui/`, with Tailwind utility styling and Radix Dialog/DropdownMenu for
+  focus-managed overlays ([docs/ui-tokens.md](ui-tokens.md), [docs/ui-rules.md](ui-rules.md)).
+  Tiptap (free/open-source packages only) provides rich text editing. The app talks to the backend
+  exclusively through `src/lib/api.ts`, a thin `fetch` wrapper sending `credentials: 'include'`
+  so the session cookie rides along automatically.
 - **Backend** — Node.js + Express + TypeScript, organized as route modules (`auth`, `documents`,
-  `sharing`, `attachments`) behind a single `requireAuth` middleware. Every route requires a
-  session — there is no anonymous/public access (ADR-0002).
+  `attachments`) with `requireAuth` applied to protected routers. Signup, login, and health are
+  intentionally public; document, sharing, attachment, and logout flows require a valid session.
 - **Database** — Postgres, accessed via Prisma. System of record for users, documents, access
   grants, and attachment metadata (ADR-0004). Schema: [docs/specs/data-model.md](specs/data-model.md).
-- **File storage** — local filesystem (`uploads/`), storing only `.txt`/`.md` files with
-  server-generated names; Postgres holds the metadata pointer (ADR-0004).
+- **File storage** — Multer accepts `.txt`/`.md` multipart files into memory, validates them, and
+  writes them to local filesystem storage (`uploads/`) with server-generated names; Postgres holds
+  the metadata pointer (ADR-0004).
 
 ## Key architectural decisions
 
@@ -63,6 +65,7 @@ flowchart LR
 | ~~Single document per user~~ — superseded                                                | [0003](adr/0003-single-document-per-user.md)           |
 | Postgres/Prisma persistence, local disk for attachments                                  | [0004](adr/0004-postgres-prisma-local-disk-storage.md) |
 | Users can own multiple documents (minimal list, no dashboard)                            | [0005](adr/0005-multiple-owned-documents.md)           |
+| Shared UI primitives plus Radix dialog/dropdown interaction surfaces                     | [ui-rules](ui-rules.md)                                |
 
 ## Request flows
 
@@ -139,7 +142,8 @@ sequenceDiagram
   before returning data — no security-by-obscurity via unguessable IDs.
 - Uploaded file validation checks both extension and MIME type; stored filenames are
   server-generated (never derived from user input) to prevent path traversal.
-- No anonymous/public routes exist in this build (see ADR-0002) — every request is authenticated.
+- Signup, login, and health are public by design; all document and attachment data routes are
+  authenticated. No anonymous document access exists (see ADR-0002).
 
 ## Explicitly deferred
 

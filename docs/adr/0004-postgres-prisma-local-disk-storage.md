@@ -14,6 +14,8 @@ pragmatic default for this pass.
 
 - Use **Postgres** as the system of record, accessed via **Prisma** for type-safe schema
   migrations and queries in TypeScript.
+- Use **Multer** as the small multipart boundary for `.txt` and `.md` uploads. Files are accepted
+  into memory, validated by both extension and MIME type, then written to local disk.
 - Store uploaded `.txt`/`.md` files on the **local filesystem** (a project-relative `uploads/`
   directory), with only the file's metadata (filename, path, mime type, size) recorded in
   Postgres. Stored filenames are randomized server-side to avoid path traversal and collisions.
@@ -23,5 +25,7 @@ pragmatic default for this pass.
 - Fast local setup: one Postgres instance (or Docker container), one `prisma migrate` command.
 - Attachments are not portable across deployments/replicas as-is; moving to S3-compatible storage
   later means swapping the storage adapter behind the attachment routes, not the schema.
+- Multer's memory storage keeps the initial implementation lean, but upload size limits and object
+  storage should be revisited before production deployment.
 - Local disk storage is acceptable because deployment is explicitly out of scope for this pass
   (see PRD non-goals).

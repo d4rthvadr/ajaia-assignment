@@ -22,6 +22,9 @@ compact controls, clear labels, white surfaces, and content-first spacing.
 | Attachment list                                      | `Card` or plain list with `Button` (variant `ghost`) for download                                                 |
 | Errors (bad login, rejected file type, no such user) | `Alert` (inline) or `Sonner` (toast) — prefer inline `Alert` for form errors, toast for transient action feedback |
 | Loading states                                       | `Skeleton` for lists, disabled `Button` with spinner for in-flight actions                                        |
+| Workspace navigation                                 | Compact `nav` in the app bar with the active route visibly marked                                                 |
+| Share access                                         | Radix `Dialog` opened by a labeled `Share` action; keep errors inside the dialog                                  |
+| File actions                                         | Radix `DropdownMenu` for upload/import choices; keep downloads inline with each attachment                        |
 
 ## Layout
 
