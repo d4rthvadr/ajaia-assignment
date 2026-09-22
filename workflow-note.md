@@ -94,6 +94,31 @@ build instead of a risk to unwind later.
 
 ###
 
+### Decision: Adopting shadcn/ui with living UI docs
+
+**Prompt:** "lets use shadcn for UI related stuff and generate a
+simple ui-tokens.md, ui-rules.md. these are progressive updated only
+when needed."
+
+**What I got:** Two new docs — [docs/ui-tokens.md](docs/ui-tokens.md)
+(color/spacing/typography tokens, defaulting to shadcn's stock Zinc
+theme) and [docs/ui-rules.md](docs/ui-rules.md) (component mapping,
+form/validation pattern, accessibility baseline) — plus the stack
+line in AGENTS.md updated to name shadcn/ui + Tailwind CSS.
+
+**What I changed:** Kept both docs deliberately thin and marked them
+as living documents updated only when a new UI need actually arises,
+instead of front-loading a full design system for a 2-hour build.
+Explicitly listed non-goals (no dark mode, no custom theme, no new
+animation library) so scope doesn't creep in through the UI layer.
+
+**Why this matters:** A UI-tokens/rules doc can easily balloon into
+its own mini design-system project. Scoping it to "shadcn defaults +
+a mapping table, extended only on demand" keeps it useful without
+competing with the actual 2-hour build for time.
+
+###
+
 ### Decision: Allowing subagents on independent tasks via git worktrees
 
 **Prompt:** "lets include the option to use sub-agents where necessary
